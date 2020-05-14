@@ -42,6 +42,8 @@ public class FileUtil {
 
     public final static Map<String, GoodsHScode> DATAMAP = new HashMap<String, GoodsHScode>();
 
+    public final static Map<String, String> currCodeMap = new HashMap<String, String>();
+
     //预读HS商品HS编码
     static {
         try {
@@ -58,6 +60,37 @@ public class FileUtil {
                 String zhName = entity.getZhName();
                 DATAMAP.put(zhName, entity);
             }
+
+            //币制
+            currCodeMap.put("110", "HKD");
+            currCodeMap.put("113", "IRR");
+            currCodeMap.put("116", "JPY");
+            currCodeMap.put("118", "KWD");
+            currCodeMap.put("121", "MOP");
+            currCodeMap.put("122", "MYR");
+            currCodeMap.put("127", "PRK");
+            currCodeMap.put("129", "PHP");
+            currCodeMap.put("132", "SGD");
+            currCodeMap.put("136", "THB");
+            currCodeMap.put("142", "CNY");
+            currCodeMap.put("143", "TWD");
+            currCodeMap.put("300", "EUR");
+            currCodeMap.put("302", "DKK");
+            currCodeMap.put("303", "GBP");
+            currCodeMap.put("326", "NOK");
+            currCodeMap.put("330", "SEK");
+            currCodeMap.put("331", "CHF");
+            currCodeMap.put("501", "CAD");
+            currCodeMap.put("502", "USD");
+            currCodeMap.put("601", "AUD");
+            currCodeMap.put("609", "NZD");
+            currCodeMap.put("133", "KRW");
+            currCodeMap.put("304", "DEM");
+            currCodeMap.put("305", "FRF");
+            currCodeMap.put("307", "ITL");
+            currCodeMap.put("312", "ESP");
+            currCodeMap.put("315", "ATS");
+            currCodeMap.put("318", "FIM");
             System.out.println("加载完毕");
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,10 +124,10 @@ public class FileUtil {
             PDClearancePrintEntity entity = (PDClearancePrintEntity) object;
 
             //生成发票
-            productCommercialInvoice(entity, sameWaybill, "C:/customs/photo");
+            //productCommercialInvoice(entity, sameWaybill, "C:/customs/photo");
 
             //生成委托协议书
-            productAgreementBook(entity, "C:/customs/photo");
+            //productAgreementBook(entity, sameWaybill, "C:/customs/photo");
 
             //生成运单信息单
             productWaybillInfo(entity, sameWaybill, "C:/customs/photo");
@@ -161,10 +194,10 @@ public class FileUtil {
                 TEMPLATE_CACHE.put("commercialInvoice", resource);
             }
 
-            String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
-            String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
-            String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/fapiao.tiff";
-            //String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/fapiao.tiff";
+            //String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
+            //String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
+            //String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/fapiao.tiff";
+            String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/fapiao.tiff";
             System.out.println("path1=" + imgPath);
             BufferedImage bufferedImage = readBufferedImage(imgPath);
             //添加文字水印
@@ -184,11 +217,15 @@ public class FileUtil {
                 tagWaterMark(entity.getReceiverAddress(), bufferedImage, 24, 700, 1700);
             }
             tagWaterMark(entity.getReceiverPhone(), bufferedImage, 24, 700, 1650);
-
-            //tagWaterMark(entity.getGoodsName(), bufferedImage, 24, 850, 1300);
+            //币制
+            String currEnCode = currCodeMap.get(entity.getCurrCode()) == null ? "TWD" : currCodeMap.get(entity.getCurrCode());
+            tagWaterMark(currEnCode, bufferedImage, 24, 318, 1362);
+            tagWaterMark(currEnCode, bufferedImage, 24, 210, 1362);
+            tagWaterMark(currEnCode, bufferedImage, 24, 318, 748);
+            //明细
             if (sameWaybill.get(entity.getYtoMailNo()).size() == 1) {
                 formatString(entity.getGoodsName(), 5, bufferedImage, 24, 850, 1310, 27);
-                tagWaterMark(entity.getGoodsNum(), bufferedImage, 24, 610, 1310);
+                tagWaterMark(entity.getPackNum(), bufferedImage, 24, 610, 1310);
                 tagWaterMark(entity.getWeight(), bufferedImage, 24, 410, 1310);
                 tagWaterMark(String.valueOf(entity.getWorth()), bufferedImage, 24, 210, 1310);
                 tagWaterMark(entity.getWeight(), bufferedImage, 24, 415, 635);
@@ -208,17 +245,21 @@ public class FileUtil {
                     PDClearancePrintEntity entity1 = pdClearancePrintEntities.get(i);
                     weight = weight.add(new BigDecimal(entity1.getWeight()));
                     worth = worth.add(new BigDecimal(entity1.getWorth()));
+                    if (i < 13) {
+                        formatString(entity1.getGoodsName(), 5, bufferedImage, 24, 850, 1310 - (i * 40), 27);
+                        tagWaterMark(entity1.getPackNum(), bufferedImage, 24, 610, 1310 - (i * 40));
+                        tagWaterMark(entity1.getWeight(), bufferedImage, 24, 410, 1310 - (i * 40));
+                        tagWaterMark(String.valueOf(entity1.getWorth()), bufferedImage, 24, 210, 1310 - (i * 40));
 
-                    formatString(entity1.getGoodsName(), 5, bufferedImage, 24, 850, 1310 - (i * 40), 27);
-                    tagWaterMark(entity1.getGoodsNum(), bufferedImage, 24, 610, 1310 - (i * 40));
-                    tagWaterMark(entity1.getWeight(), bufferedImage, 24, 410, 1310 - (i * 40));
-                    tagWaterMark(String.valueOf(entity1.getWorth()), bufferedImage, 24, 210, 1310 - (i * 40));
-
-                    tagWaterMark("CHINA", bufferedImage, 24, 1350, 1310 - (i * 40));
-                    tagWaterMark("N/M", bufferedImage, 24, 1230, 1310 - (i * 40));
-                    tagWaterMark("1", bufferedImage, 24, 1080, 1310 - (i * 40));
-                    tagWaterMark("PAPER BAG", bufferedImage, 24, 1000, 1310 - (i * 40));
-                    tagWaterMark("PCS", bufferedImage, 24, 520, 1310 - (i * 40));
+                        tagWaterMark("CHINA", bufferedImage, 24, 1350, 1310 - (i * 40));
+                        tagWaterMark("N/M", bufferedImage, 24, 1230, 1310 - (i * 40));
+                        tagWaterMark(String.valueOf(i + 1), bufferedImage, 24, 1080, 1310 - (i * 40));
+                        tagWaterMark("PAPER BAG", bufferedImage, 24, 1000, 1310 - (i * 40));
+                        tagWaterMark("PCS", bufferedImage, 24, 520, 1310 - (i * 40));
+                    }
+                    if (i == 13) {
+                        tagWaterMark("......", bufferedImage, 24, 1350, 1310 - (i * 40));
+                    }
                 }
                 tagWaterMark(String.valueOf(pdClearancePrintEntities.size()), bufferedImage, 24, 1070, 635);
                 tagWaterMark(String.valueOf(weight), bufferedImage, 24, 415, 635);
@@ -249,7 +290,7 @@ public class FileUtil {
 
     }
 
-    private static void productAgreementBook(PDClearancePrintEntity entity, String path) {
+    private static void productAgreementBook(PDClearancePrintEntity entity, Map<String, List<PDClearancePrintEntity>> sameWaybill, String path) {
         try {
             //生成日期
             String date = entity.getInBoundYear() + "年" + entity.getInBoundMonth() + "月" + entity.getInBoundDay() + "日";
@@ -261,10 +302,10 @@ public class FileUtil {
                 TEMPLATE_CACHE.put("agreement", agreementUrl);
             }
 
-            String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
-            String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
-            String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/weituoshu.tiff";
-            //String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/weituoshu.tiff";
+            //String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
+            //String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
+            //String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/weituoshu.tiff";
+            String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/weituoshu.tiff";
             System.out.println("路径=" + imgPath);
             BufferedImage bufferedImage = readBufferedImage(imgPath);
 
@@ -277,7 +318,7 @@ public class FileUtil {
 
             tagWaterMark(entity.getGoodsName(), bufferedImage, 24, 1210, 1310);
             tagWaterMark(date, bufferedImage, 24, 1210, 1180);
-            tagWaterMark(entity.getWorth() + "台币", bufferedImage, 24, 1210, 1220);
+            tagWaterMark(computeTotalWorth(entity, sameWaybill), bufferedImage, 24, 1210, 1220);
             tagWaterMark(date, bufferedImage, 24, 550, 1265);
             tagWaterMark(entity.getYtoMailNo(), bufferedImage, 24, 1210, 1130);
 
@@ -320,6 +361,26 @@ public class FileUtil {
         }
     }
 
+    private static String computeTotalWorth(PDClearancePrintEntity entity, Map<String, List<PDClearancePrintEntity>> sameWaybill) {
+        //ji算总价
+        String ytoMailNo = entity.getYtoMailNo();
+        BigDecimal totalWorth = new BigDecimal("0.0");
+        if (sameWaybill.get(ytoMailNo).size() == 1) {
+            String worth = entity.getWorth();
+            totalWorth = totalWorth.add(new BigDecimal(worth));
+        } else {
+            List<PDClearancePrintEntity> entityList = sameWaybill.get(ytoMailNo);
+            for (int i = 0; i < entityList.size(); i++) {
+                PDClearancePrintEntity printEntity = entityList.get(i);
+                String worth = printEntity.getWorth();
+                totalWorth = totalWorth.add(new BigDecimal(worth));
+            }
+        }
+        //转化币制
+        String currEnCode = currCodeMap.get(entity.getCurrCode()) == null ? "TWD" : currCodeMap.get(entity.getCurrCode());
+        return totalWorth + currEnCode;
+    }
+
     private static void productWaybillInfo(PDClearancePrintEntity entity, Map<String, List<PDClearancePrintEntity>> sameWaybill, String path) {
         try {
             // pdf模板
@@ -330,10 +391,10 @@ public class FileUtil {
             }
 
             //读取tif图片
-            String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
-            String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
-            String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/yundan.tiff";
-            //String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/yundan.tiff";
+            //String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
+            //String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
+            //String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/yundan.tiff";
+            String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/yundan.tiff";
             System.out.println("path=" + imgPath);
             BufferedImage bufferedImage = readBufferedImage(imgPath);
 
@@ -360,19 +421,30 @@ public class FileUtil {
             formatString(entity.getReceiverAddress(), 20, bufferedImage, 14, 310, 170, 20);
             //订单详情
             if (sameWaybill.get(entity.getYtoMailNo()).size() == 1) {
-                String concat = entity.getGoodsName().concat("  ").concat(entity.getGoodsNum()).concat("  ")
-                        .concat(entity.getWeight()).concat("  ").concat(entity.getWorth());
-                tagWaterMark(concat, bufferedImage, 14, 310, 125);
+                String goodsName = formatString(entity.getGoodsName(), 6);
+                String packNum = formatString(entity.getPackNum(), 3);
+                String worth = formatString(entity.getWorth(), 4);
+                String weight = formatString(entity.getWeight(), 4);
+                tagWaterMark(goodsName, bufferedImage, 14, 310, 125);
+                tagWaterMark(packNum, bufferedImage, 14, 180, 125);
+                tagWaterMark(weight, bufferedImage, 14, 145, 125);
+                tagWaterMark(worth, bufferedImage, 14, 100, 125);
             } else {
                 List<PDClearancePrintEntity> entityList = sameWaybill.get(entity.getYtoMailNo());
                 for (int i = 0; i < entityList.size(); i++) {
-                    String concat = entity.getGoodsName().concat("   ").concat(entity.getGoodsNum()).concat("   ")
-                            .concat(entity.getWeight()).concat("   ").concat(entity.getWorth());
                     if (i > 4) {
                         tagWaterMark("......", bufferedImage, 14, 310, 56);
                         break;
                     }
-                    tagWaterMark(concat, bufferedImage, 14, 310, 125 - (i * 15));
+                    PDClearancePrintEntity printEntity = entityList.get(i);
+                    String goodsName = formatString(printEntity.getGoodsName(), 6);
+                    String packNum = formatString(printEntity.getPackNum(), 3);
+                    String worth = formatString(printEntity.getWorth(), 4);
+                    String weight = formatString(printEntity.getWeight(), 4);
+                    tagWaterMark(goodsName, bufferedImage, 14, 310, 125 - (i * 15));
+                    tagWaterMark(packNum, bufferedImage, 14, 180, 125 - (i * 15));
+                    tagWaterMark(weight, bufferedImage, 14, 145, 125 - (i * 15));
+                    tagWaterMark(worth, bufferedImage, 14, 100, 125 - (i * 15));
                 }
             }
             tagWaterMark(entity.getYtoMailNo(), bufferedImage, 14, 300, 32);
@@ -401,6 +473,14 @@ public class FileUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String formatString(String str, int checkLen) {
+        String result = str;
+        if (str.length() > checkLen) {
+            result = str.substring(0, checkLen).concat("...");
+        }
+        return result;
     }
 
     private static void productWaybillInfoBack(PDClearancePrintEntity entity, String path) {
