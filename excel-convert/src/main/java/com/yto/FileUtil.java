@@ -408,17 +408,17 @@ public class FileUtil {
             //收件人
             tagWaterMark(entity.getReceiver(), bufferedImage, 14, 310, 460);
             tagWaterMark(entity.getReceiverPhone(), bufferedImage, 14, 310, 440);
-            formatString(entity.getReceiverAddress(), 20, bufferedImage, 14, 310, 420, 20);
+            formatString(entity.getReceiverAddress(), 19, bufferedImage, 14, 310, 420, 20);
 
             //寄件人
             tagWaterMark(entity.getSender() + " " + entity.getSenderTelephone(), bufferedImage, 14, 310, 372);
-            formatString(entity.getSenderAddress(), 20, bufferedImage, 14, 310, 352, 20);
+            formatString(entity.getSenderAddress(), 19, bufferedImage, 14, 310, 352, 20);
             //tagWaterMark(entity.getSenderTelephone(), bufferedImage, 14, 310, 332);
             //条码
             tagWaterMark(ytoMailNo, bufferedImage, 14, 160, 215);
             //收件人
             tagWaterMark(entity.getReceiver() + "  " + entity.getReceiverPhone(), bufferedImage, 14, 310, 190);
-            formatString(entity.getReceiverAddress(), 20, bufferedImage, 14, 310, 170, 20);
+            formatString(entity.getReceiverAddress(), 19, bufferedImage, 14, 310, 170, 20);
             //订单详情
             if (sameWaybill.get(entity.getYtoMailNo()).size() == 1) {
                 String goodsName = formatString(entity.getGoodsName(), 6);
