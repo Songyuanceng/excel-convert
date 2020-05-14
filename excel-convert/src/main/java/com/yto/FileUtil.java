@@ -450,7 +450,7 @@ public class FileUtil {
             tagWaterMark(entity.getYtoMailNo(), bufferedImage, 14, 300, 32);
             tagWaterMark(String.valueOf(sameWaybill.get(entity.getYtoMailNo()).size()), bufferedImage, 14, 40, 32);
             //时间
-            tagWaterMark(DateFormatUtils.format(new Date(), "yyyy-MM-dd hh:MM:ss"), bufferedImage, 13, 145, 10);
+            tagWaterMark(DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"), bufferedImage, 13, 145, 10);
 
             //生成TIF路径
             File file = new File(path);
