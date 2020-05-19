@@ -49,9 +49,9 @@ public class FileUtil {
         try {
             System.out.println("加载数据");
             String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
-            //String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
-            //String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/Book.xls";
-            String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/Book.xls";
+            String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
+            String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/Book.xls";
+            //String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/Book.xls";
             //InputStream resourceAsStream = ClassUtils.class.getClassLoader().getResourceAsStream("./Book.xls");
             FileInputStream fileInputStream = new FileInputStream(new File(imgPath));
             List<Object> read = EasyExcelFactory.read(new BufferedInputStream(fileInputStream), new Sheet(1, 1, GoodsHScode.class));
@@ -124,10 +124,10 @@ public class FileUtil {
             PDClearancePrintEntity entity = (PDClearancePrintEntity) object;
 
             //生成发票
-            //productCommercialInvoice(entity, sameWaybill, "C:/customs/photo");
+            productCommercialInvoice(entity, sameWaybill, "C:/customs/photo");
 
             //生成委托协议书
-            //productAgreementBook(entity, sameWaybill, "C:/customs/photo");
+            productAgreementBook(entity, sameWaybill, "C:/customs/photo");
 
             //生成运单信息单
             productWaybillInfo(entity, sameWaybill, "C:/customs/photo");
@@ -194,10 +194,10 @@ public class FileUtil {
                 TEMPLATE_CACHE.put("commercialInvoice", resource);
             }
 
-            //String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
-            //String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
-            //String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/fapiao.tiff";
-            String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/fapiao.tiff";
+            String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
+            String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
+            String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/fapiao.tiff";
+            //String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/fapiao.tiff";
             System.out.println("path1=" + imgPath);
             BufferedImage bufferedImage = readBufferedImage(imgPath);
             //添加文字水印
@@ -218,7 +218,7 @@ public class FileUtil {
             }
             tagWaterMark(entity.getReceiverPhone(), bufferedImage, 24, 700, 1650);
             //币制
-            String currEnCode = currCodeMap.get(entity.getCurrCode()) == null ? "TWD" : currCodeMap.get(entity.getCurrCode());
+            String currEnCode = getCurrenCode(entity.getCurrCode());
             tagWaterMark(currEnCode, bufferedImage, 24, 318, 1362);
             tagWaterMark(currEnCode, bufferedImage, 24, 210, 1362);
             tagWaterMark(currEnCode, bufferedImage, 24, 318, 748);
@@ -290,6 +290,14 @@ public class FileUtil {
 
     }
 
+    private static String getCurrenCode(String currCode) {
+        if (currCode.matches("^[A-Za-z]*$")) {
+            return currCode;
+        } else {
+            return currCodeMap.get(currCode) == null ? "TWD" : currCodeMap.get(currCode);
+        }
+    }
+
     private static void productAgreementBook(PDClearancePrintEntity entity, Map<String, List<PDClearancePrintEntity>> sameWaybill, String path) {
         try {
             //生成日期
@@ -302,10 +310,10 @@ public class FileUtil {
                 TEMPLATE_CACHE.put("agreement", agreementUrl);
             }
 
-            //String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
-            //String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
-            //String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/weituoshu.tiff";
-            String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/weituoshu.tiff";
+            String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
+            String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
+            String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/weituoshu.tiff";
+            //String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/weituoshu.tiff";
             System.out.println("路径=" + imgPath);
             BufferedImage bufferedImage = readBufferedImage(imgPath);
 
@@ -377,7 +385,7 @@ public class FileUtil {
             }
         }
         //转化币制
-        String currEnCode = currCodeMap.get(entity.getCurrCode()) == null ? "TWD" : currCodeMap.get(entity.getCurrCode());
+        String currEnCode = getCurrenCode(entity.getCurrCode());
         return totalWorth + currEnCode;
     }
 
@@ -391,10 +399,10 @@ public class FileUtil {
             }
 
             //读取tif图片
-            //String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
-            //String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
-            //String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/yundan.tiff";
-            String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/yundan.tiff";
+            String tiffPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").replaceAll("jar:", "").trim();
+            String decodePath = URLDecoder.decode(tiffPath, "UTF-8");
+            String imgPath = decodePath.substring(0, decodePath.lastIndexOf("/", decodePath.lastIndexOf("/") - 3)) + "/templates/yundan.tiff";
+            //String imgPath = ClassLoader.getSystemResource("templates").toString().replaceAll("file:/", "").trim() + "/yundan.tiff";
             System.out.println("path=" + imgPath);
             BufferedImage bufferedImage = readBufferedImage(imgPath);
 
@@ -422,13 +430,13 @@ public class FileUtil {
             //订单详情
             if (sameWaybill.get(entity.getYtoMailNo()).size() == 1) {
                 String goodsName = formatString(entity.getGoodsName(), 6);
-                String packNum = formatString(entity.getPackNum(), 3);
-                String worth = formatString(entity.getWorth(), 4);
-                String weight = formatString(entity.getWeight(), 4);
+                String packNum = entity.getPackNum();
+                String worth = entity.getWorth();
+                String weight = entity.getWeight();
                 tagWaterMark(goodsName, bufferedImage, 14, 310, 125);
                 tagWaterMark(packNum, bufferedImage, 14, 180, 125);
                 tagWaterMark(weight, bufferedImage, 14, 145, 125);
-                tagWaterMark(worth, bufferedImage, 14, 100, 125);
+                tagWaterMark(worth, bufferedImage, 14, 95, 125);
             } else {
                 List<PDClearancePrintEntity> entityList = sameWaybill.get(entity.getYtoMailNo());
                 for (int i = 0; i < entityList.size(); i++) {
@@ -438,13 +446,13 @@ public class FileUtil {
                     }
                     PDClearancePrintEntity printEntity = entityList.get(i);
                     String goodsName = formatString(printEntity.getGoodsName(), 6);
-                    String packNum = formatString(printEntity.getPackNum(), 3);
-                    String worth = formatString(printEntity.getWorth(), 4);
-                    String weight = formatString(printEntity.getWeight(), 4);
+                    String packNum = printEntity.getPackNum();
+                    String worth = printEntity.getWorth();
+                    String weight = printEntity.getWeight();
                     tagWaterMark(goodsName, bufferedImage, 14, 310, 125 - (i * 15));
                     tagWaterMark(packNum, bufferedImage, 14, 180, 125 - (i * 15));
                     tagWaterMark(weight, bufferedImage, 14, 145, 125 - (i * 15));
-                    tagWaterMark(worth, bufferedImage, 14, 100, 125 - (i * 15));
+                    tagWaterMark(worth, bufferedImage, 14, 95, 125 - (i * 15));
                 }
             }
             tagWaterMark(entity.getYtoMailNo(), bufferedImage, 14, 300, 32);
